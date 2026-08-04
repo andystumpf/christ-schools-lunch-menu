@@ -1,0 +1,136 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "christ schools menu",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.RepeatIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.NoIntent",
+          "samples": []
+        },
+        {
+          "name": "weekMenuIntent",
+          "slots": [
+            {
+              "name": "week",
+              "type": "WeekReference"
+            }
+          ],
+          "samples": [
+            "whats for lunch {week}",
+            "what is for lunch {week}",
+            "lunch {week}",
+            "show me the menu for {week}",
+            "show the menu for {week}",
+            "show me {week} menu",
+            "menu for {week}"
+          ]
+        },
+        {
+          "name": "searchIntent",
+          "slots": [
+            {
+              "name": "day",
+              "type": "AMAZON.DATE"
+            },
+            {
+              "name": "weekday",
+              "type": "AMAZON.DayOfWeek"
+            },
+            {
+              "name": "modifier",
+              "type": "DayModifier"
+            }
+          ],
+          "samples": [
+            "whats for lunch",
+            "whats for lunch {day}",
+            "whats for lunch on {day}",
+            "what is for lunch on {day}",
+            "what is for lunch {day}",
+            "lunch on {day}",
+            "what was for lunch {day}",
+            "what was for lunch on {day}",
+            "whats for lunch {weekday}",
+            "whats for lunch on {weekday}",
+            "what is for lunch on {weekday}",
+            "whats for lunch next {weekday}",
+            "what is for lunch next {weekday}",
+            "whats for lunch this {weekday}",
+            "what is for lunch this {weekday}",
+            "whats for lunch this coming {weekday}",
+            "what is for lunch this coming {weekday}",
+            "whats for lunch coming {weekday}",
+            "whats for lunch on this coming {weekday}",
+            "whats for lunch {modifier} {weekday}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "name": "WeekReference",
+          "values": [
+            {
+              "name": {
+                "value": "next week",
+                "synonyms": ["next week"]
+              }
+            },
+            {
+              "name": {
+                "value": "this week",
+                "synonyms": ["this week"]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DayModifier",
+          "values": [
+            {
+              "name": {
+                "value": "next",
+                "synonyms": ["next"]
+              }
+            },
+            {
+              "name": {
+                "value": "this",
+                "synonyms": ["this"]
+              }
+            },
+            {
+              "name": {
+                "value": "this coming",
+                "synonyms": ["this coming", "coming"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

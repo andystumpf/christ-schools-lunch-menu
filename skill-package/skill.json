@@ -1,0 +1,124 @@
+{
+  "manifest": {
+    "manifestVersion": "1.0",
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:017027712407:function:dc4a98f9-ff3f-4f16-bef6-a421364c411f:Release_0"
+        },
+        "interfaces": [
+          {
+            "type": "ALEXA_PRESENTATION_APL",
+            "supportedViewports": [
+              {
+                "mode": "HUB",
+                "shape": "ROUND",
+                "minWidth": 100,
+                "maxWidth": 599,
+                "minHeight": 100,
+                "maxHeight": 599
+              },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minHeight": 100,
+                "maxHeight": 599,
+                "minWidth": 960,
+                "maxWidth": 1279
+              },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minHeight": 600,
+                "maxHeight": 959,
+                "minWidth": 960,
+                "maxWidth": 1279
+              },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minHeight": 600,
+                "maxHeight": 1279,
+                "minWidth": 1280,
+                "maxWidth": 1920
+              },
+              {
+                "mode": "TV",
+                "shape": "RECTANGLE",
+                "minHeight": 540,
+                "maxHeight": 540,
+                "minWidth": 960,
+                "maxWidth": 960
+              },
+              {
+                "mode": "MOBILE",
+                "shape": "RECTANGLE",
+                "minHeight": 320,
+                "maxHeight": 1920,
+                "minWidth": 960,
+                "maxWidth": 1279
+              }
+            ]
+          }
+        ],
+        "regions": {
+          "NA": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-east-1:017027712407:function:dc4a98f9-ff3f-4f16-bef6-a421364c411f:Release_0"
+            }
+          },
+          "EU": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:eu-west-1:017027712407:function:dc4a98f9-ff3f-4f16-bef6-a421364c411f:Release_0"
+            }
+          },
+          "FE": {
+            "endpoint": {
+              "uri": "arn:aws:lambda:us-west-2:017027712407:function:dc4a98f9-ff3f-4f16-bef6-a421364c411f:Release_0"
+            }
+          }
+        }
+      }
+    },
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "containsAds": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "locales": {
+        "en-US": {}
+      },
+      "usesPersonalInfo": false
+    },
+    "publishingInformation": {
+      "automaticDistribution": {
+        "isActive": false
+      },
+      "category": "EDUCATION_AND_REFERENCE",
+      "distributionCountries": [],
+      "distributionMode": "PUBLIC",
+      "isAvailableWorldwide": true,
+      "locales": {
+        "en-US": {
+          "name": "Christ Schools Menu",
+          "summary": "Hear Christ Schools lunch for today, a date, next week, or next Tuesday from the official calendar.",
+          "description": "Christ Schools Menu reads the official Christ Schools elementary lunch calendar so you can ask Alexa what's for lunch without opening a browser.\n\nWHAT YOU CAN ASK\n• Today or tomorrow: \"Alexa, ask Christ Schools Menu what's for lunch today\"\n• A specific date: \"Alexa, ask Christ Schools Menu what's for lunch on August seventeenth\"\n• A weekday: \"Alexa, ask Christ Schools Menu what's for lunch on Friday\"\n• Next week (Monday–Friday): \"Alexa, ask Christ Schools Menu what's for lunch next week\"\n• Relative days: \"Alexa, ask Christ Schools Menu what's for lunch next Tuesday\" or \"this coming Wednesday\"\n\nHOW IT WORKS\nThe skill loads the public Christ Schools lunch Google Calendar each time you ask. No account or student information is required. If school is out or no menu is posted for a day, Alexa will say there is no lunch information for that day.\n\nVOICE COMMANDS\nSay \"help\" for examples, \"repeat\" to hear the last answer again, or \"stop\" to exit.\n\nFull user guide: https://github.com/andystumpf/christ-schools-lunch-menu/blob/main/docs/USER_GUIDE.md",
+          "examplePhrases": [
+            "Alexa, ask Christ Schools Menu what's for lunch today",
+            "Alexa, ask Christ Schools Menu show me the menu for next week",
+            "Alexa, ask Christ Schools Menu show me the menu for this week"
+          ],
+          "keywords": [
+            "christ schools",
+            "lunch menu",
+            "school lunch",
+            "elementary lunch"
+          ],
+          "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/709e/3e564578bea64444aaecd61c20cf130a/APP_ICON?versionId=hegUg8v1hF6MXYUowrJRCpo3SsBsC4va&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260803T212645Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QAJVSXSHR%2F20260803%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=a744694f1e774f70fe8af49d8a61b7340080f5c9e5ea6eec60e4a9a942be631f",
+          "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/1d77/037584ec05804578aab74aca26ce709b/APP_ICON_LARGE?versionId=yw17CfDBknChilxjce1HHaSdkuq7hhA6&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260803T212645Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604799&X-Amz-Credential=AKIAWBV6LQ4QAJVSXSHR%2F20260803%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=347824a6602a008e83fec4e74ae1d9102144d7d620758cd39ca23c78595cc64a"
+        }
+      },
+      "testingInstructions": "Enable the skill in Development and test with Skill I/O, Manual JSON, or an Echo Show with development access enabled.\n\nSingle day:\nAlexa, ask Christ Schools Menu what's for lunch today\nAlexa, ask Christ Schools Menu what's for lunch on August seventeenth\n\nWeek view:\nAlexa, ask Christ Schools Menu what's for lunch next week\n\nEcho Show (APL): responses should display a navy screen with gold subtitle, white menu text, and scrollable content. Single-day menus with OR choices show bullet points. Next week shows Monday through Friday.\n\nExpected: spoken menu from the public Christ Schools Google Calendar. Days with no calendar entry should say no lunch information is available.\n\nHelp: Alexa, ask Christ Schools Menu help\nStop: Alexa, ask Christ Schools Menu stop"
+    }
+  }
+}
