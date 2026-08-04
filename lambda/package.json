@@ -1,0 +1,16 @@
+{
+  "name": "christ-lincoln-schools-lunch-menu",
+  "version": "1.1.0",
+  "description": "Alexa skill for Christ Schools elementary lunch menu",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test-menu.js"
+  },
+  "author": "Andy Stumpf",
+  "license": "MIT",
+  "dependencies": {
+    "alexa-sdk": "^1.0.25",
+    "ical": "0.8.0",
+    "moment": "^2.29.4"
+  }
+}
