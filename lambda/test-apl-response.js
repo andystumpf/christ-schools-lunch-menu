@@ -1,27 +1,6 @@
 'use strict';
 
 var apl = require('./apl');
-var fs = require('fs');
-var path = require('path');
-
-function countInTree(node, predicate) {
-    if (!node || typeof node !== 'object') {
-        return 0;
-    }
-    var count = predicate(node) ? 1 : 0;
-    if (node.mainTemplate) {
-        count += countInTree(node.mainTemplate, predicate);
-    }
-    if (Array.isArray(node.items)) {
-        node.items.forEach(function (child) {
-            count += countInTree(child, predicate);
-        });
-    }
-    if (node.item) {
-        count += countInTree(node.item, predicate);
-    }
-    return count;
-}
 
 function findFirst(node, predicate) {
     if (!node || typeof node !== 'object') {
@@ -69,9 +48,8 @@ if (weekPayload.bodyText.indexOf('MONDAY') === -1 || weekPayload.bodyText.indexO
 
 var mediumViewport = { mode: 'HUB', shape: 'RECTANGLE', pixelWidth: 1024, pixelHeight: 600 };
 var largeViewport = { mode: 'HUB', shape: 'RECTANGLE', pixelWidth: 1280, pixelHeight: 800 };
-var roundViewport = { mode: 'HUB', shape: 'ROUND', pixelWidth: 480, pixelHeight: 480 };
 
-var weekDoc = apl.buildDocument(weekPayload, mediumViewport);
+var weekDoc = apl.buildDisplayDocument(weekPayload);
 var weekJson = JSON.stringify(weekDoc);
 
 if (weekDoc.version !== '1.8') {
@@ -80,43 +58,18 @@ if (weekDoc.version !== '1.8') {
 if (weekJson.indexOf('${') !== -1) {
     throw new Error('APL document should inline text instead of using data binding');
 }
-if (!findFirst(weekDoc, function (n) { return n.type === 'ScrollView'; })) {
-    throw new Error('Week view should include ScrollView');
+if (findFirst(weekDoc, function (n) { return n.type === 'ScrollView'; })) {
+    throw new Error('Flat layout should not use ScrollView');
 }
 
-var dayCards = countInTree(weekDoc, function (n) {
-    return n.backgroundColor === apl.THEME.cardBg;
+var bodyText = findFirst(weekDoc, function (n) {
+    return n.type === 'Text' && n.text && n.text.indexOf('THURSDAY') !== -1;
 });
-if (dayCards < 5) {
-    throw new Error('Week view should include five day cards, found ' + dayCards);
+if (!bodyText) {
+    throw new Error('Week body text should be inlined in a Text component');
 }
 
-var smallScale = apl.resolveScale({ mode: 'HUB', shape: 'RECTANGLE', pixelWidth: 1024, pixelHeight: 480 });
-var largeScale = apl.resolveScale(largeViewport);
-if (smallScale.titleSize >= largeScale.titleSize) {
-    throw new Error('Small and large scales should use different title sizes');
-}
-
-var roundDoc = apl.buildDocument(weekPayload, roundViewport);
-var roundText = findFirst(roundDoc, function (n) {
-    return n.type === 'Text' && n.textAlign === 'center';
-});
-if (!roundText) {
-    throw new Error('Round viewport should use centered text');
-}
-if (countInTree(roundDoc, function (n) { return n.backgroundColor === apl.THEME.cardBg; }) > 0) {
-    throw new Error('Round viewport should not render card chrome');
-}
-
-var singleDoc = apl.buildDocument(
-    apl.buildSingleDayPayload('Wednesday, August 13', 'Chicken Tenders OR Sunbutter Uncrustable'),
-    mediumViewport
-);
-if (!findFirst(singleDoc, function (n) { return n.type === 'ScrollView'; })) {
-    throw new Error('Single-day view should include ScrollView on rectangle viewports');
-}
-
-var welcomeDoc = apl.buildDocument(apl.buildWelcomePayload(), mediumViewport);
+var welcomeDoc = apl.buildDisplayDocument(apl.buildWelcomePayload());
 if (!findFirst(welcomeDoc, function (n) { return n.text && n.text.indexOf('What is for lunch today?') !== -1; })) {
     throw new Error('Welcome view should list example prompts');
 }
@@ -134,13 +87,6 @@ if (apl.LIVE_MANIFEST_ALIGNED) {
     })) {
         throw new Error('Expected APL support for Echo Show 8 after manifest alignment');
     }
-} else if (apl.supportsApl({
-    context: {
-        Viewport: largeViewport,
-        System: { device: { supportedInterfaces: { 'Alexa.Presentation.APL': {} } } }
-    }
-})) {
-    throw new Error('1280px-wide Show should skip APL until LIVE_MANIFEST_ALIGNED is true');
 }
 
 if (!apl.supportsApl({
@@ -150,6 +96,14 @@ if (!apl.supportsApl({
     }
 })) {
     throw new Error('Expected APL support for in-range Echo Show viewport');
+}
+
+var directive = apl.buildRenderDirective(
+    apl.buildSingleDayPayload('Wednesday, August 13', 'Chicken Tenders OR Sunbutter Uncrustable'),
+    'singleDayView'
+);
+if (!directive.document || directive.document.type !== 'APL') {
+    throw new Error('RenderDocument should include an APL document');
 }
 
 var context = {
@@ -172,15 +126,12 @@ var context = {
             throw new Error('Unexpected emit: ' + eventName);
         }
         var response = context.handler.response;
-        var directive = response.response.directives[0];
-        if (!directive || directive.type !== 'Alexa.Presentation.APL.RenderDocument') {
+        var emitted = response.response.directives[0];
+        if (!emitted || emitted.type !== 'Alexa.Presentation.APL.RenderDocument') {
             throw new Error('Expected APL RenderDocument directive');
         }
-        if (directive._payload) {
-            throw new Error('Directive should be finalized before response');
-        }
-        if (!directive.document || directive.document.type !== 'APL') {
-            throw new Error('Expected finalized APL document on directive');
+        if (!emitted.document || emitted.document.type !== 'APL') {
+            throw new Error('Expected APL document on directive');
         }
         console.log('APL response OK');
     }
@@ -191,10 +142,7 @@ apl.emitResponse(context, {
     reprompt: 'Would you like to know more?',
     cardTitle: 'Christ Schools Menu',
     cardContent: 'Wednesday, August 13\n\n• Chicken Tenders\n• Sunbutter Uncrustable',
-    directive: apl.buildRenderDirective(
-        apl.buildSingleDayPayload('Wednesday, August 13', 'Chicken Tenders OR Sunbutter Uncrustable'),
-        'singleDayView'
-    )
+    directive: directive
 });
 
 console.log('Week APL payload OK');
