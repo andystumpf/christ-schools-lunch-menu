@@ -156,30 +156,42 @@ function buildFooter(footer, scale) {
 }
 
 function buildHeaderRow(title, subtitle, scale) {
-    if (scale.centerText) {
-        return [
-            textBlock(title, scale.titleSize, THEME.textPrimary, {
-                fontWeight: 'bold',
-                textAlign: 'center'
-            }),
-            textBlock(subtitle, scale.subtitleSize, THEME.accent, {
-                paddingTop: 8,
-                textAlign: 'center'
-            })
-        ];
-    }
+    return [
+        textBlock(title, scale.titleSize, THEME.textPrimary, {
+            fontWeight: 'bold',
+            textAlign: scale.centerText ? 'center' : 'left'
+        }),
+        textBlock(subtitle, scale.subtitleSize, THEME.accent, {
+            paddingTop: 8,
+            textAlign: scale.centerText ? 'center' : 'left'
+        })
+    ];
+}
 
-    return [{
-        type: 'Container',
-        width: '100%',
-        direction: 'row',
-        justifyContent: 'spaceBetween',
-        alignItems: 'center',
-        items: [
-            textBlock(title, scale.titleSize, THEME.textPrimary, { fontWeight: 'bold' }),
-            textBlock(subtitle, scale.subtitleSize, THEME.accent, { textAlign: 'right' })
-        ]
-    }];
+function buildPageShell(contentItems, scale) {
+    return {
+        type: 'APL',
+        version: APL_VERSION,
+        mainTemplate: {
+            parameters: [],
+            items: [{
+                type: 'ScrollView',
+                width: '100vw',
+                height: '100vh',
+                scrollDirection: 'vertical',
+                item: {
+                    type: 'Container',
+                    width: '100%',
+                    backgroundColor: THEME.pageBg,
+                    paddingLeft: scale.pagePadding,
+                    paddingRight: scale.pagePadding,
+                    paddingTop: scale.pagePadding,
+                    paddingBottom: scale.pagePadding,
+                    items: contentItems
+                }
+            }]
+        }
+    };
 }
 
 function buildDayCard(day, scale) {
@@ -224,30 +236,12 @@ function buildDayCard(day, scale) {
             borderRadius: 12,
             paddingTop: scale.cardPadding,
             paddingBottom: scale.cardPadding,
+            paddingLeft: scale.cardPadding,
             paddingRight: scale.cardPadding,
-            paddingLeft: 0,
-            items: [{
-            type: 'Container',
-            width: '100%',
-            direction: 'row',
             items: [
-                {
-                    type: 'Container',
-                    width: 6,
-                    height: 48,
-                    backgroundColor: THEME.accent
-                },
-                {
-                    type: 'Container',
-                    grow: 1,
-                    paddingLeft: 12,
-                    items: [
-                        textBlock(dayHeader, scale.daySize, THEME.accent, { fontWeight: 'bold' })
-                    ].concat(bodyItems)
-                }
-            ]
+                textBlock(dayHeader, scale.daySize, THEME.accent, { fontWeight: 'bold' })
+            ].concat(bodyItems)
         }]
-    }]
     };
 }
 
@@ -256,44 +250,12 @@ function buildWeekDocument(payload, scale) {
         return buildDayCard(day, scale);
     });
 
-    var bodyItems = buildHeaderRow(payload.title || SKILL_TITLE, payload.weekLabel, scale);
-
-    if (scale.useCards) {
-        bodyItems.push({
-            type: 'ScrollView',
-            width: '100%',
-            grow: 1,
-            item: {
-                type: 'Container',
-                width: '100%',
-                items: dayCards
-            }
-        });
-    } else {
-        bodyItems = bodyItems.concat(dayCards);
-    }
-
-    bodyItems.push(buildFooter(payload.footer, scale));
-
-    return {
-        type: 'APL',
-        version: APL_VERSION,
-        mainTemplate: {
-            parameters: [],
-            items: [{
-                type: 'Container',
-                width: '100vw',
-                height: '100vh',
-                direction: 'column',
-                backgroundColor: THEME.pageBg,
-                paddingLeft: scale.pagePadding,
-                paddingRight: scale.pagePadding,
-                paddingTop: scale.pagePadding,
-                paddingBottom: scale.pagePadding,
-                items: bodyItems
-            }]
-        }
-    };
+    return buildPageShell(
+        buildHeaderRow(payload.title || SKILL_TITLE, payload.weekLabel, scale)
+            .concat(dayCards)
+            .concat([buildFooter(payload.footer, scale)]),
+        scale
+    );
 }
 
 function buildSingleDayDocument(payload, scale) {
@@ -321,20 +283,15 @@ function buildSingleDayDocument(payload, scale) {
 
     if (scale.useCards) {
         layoutItems.push({
-            type: 'ScrollView',
+            type: 'Container',
             width: '100%',
-            grow: 1,
-            item: {
-                type: 'Container',
-                width: '100%',
-                backgroundColor: THEME.cardBg,
-                borderRadius: 12,
-                paddingTop: scale.cardPadding,
-                paddingBottom: scale.cardPadding,
-                paddingLeft: scale.cardPadding,
-                paddingRight: scale.cardPadding,
-                items: menuItems
-            }
+            backgroundColor: THEME.cardBg,
+            borderRadius: 12,
+            paddingTop: scale.cardPadding,
+            paddingBottom: scale.cardPadding,
+            paddingLeft: scale.cardPadding,
+            paddingRight: scale.cardPadding,
+            items: menuItems
         });
     } else {
         layoutItems = layoutItems.concat(menuItems);
@@ -342,25 +299,7 @@ function buildSingleDayDocument(payload, scale) {
 
     layoutItems.push(buildFooter(payload.footer, scale));
 
-    return {
-        type: 'APL',
-        version: APL_VERSION,
-        mainTemplate: {
-            parameters: [],
-            items: [{
-                type: 'Container',
-                width: '100vw',
-                height: '100vh',
-                direction: 'column',
-                backgroundColor: THEME.pageBg,
-                paddingLeft: scale.pagePadding,
-                paddingRight: scale.pagePadding,
-                paddingTop: scale.pagePadding,
-                paddingBottom: scale.pagePadding,
-                items: layoutItems
-            }]
-        }
-    };
+    return buildPageShell(layoutItems, scale);
 }
 
 function buildWelcomeDocument(payload, scale) {
@@ -379,25 +318,11 @@ function buildWelcomeDocument(payload, scale) {
         items: exampleItems
     };
 
-    return {
-        type: 'APL',
-        version: APL_VERSION,
-        mainTemplate: {
-            parameters: [],
-            items: [{
-                type: 'Container',
-                width: '100vw',
-                height: '100vh',
-                backgroundColor: THEME.pageBg,
-                paddingLeft: scale.pagePadding,
-                paddingRight: scale.pagePadding,
-                paddingTop: scale.pagePadding,
-                paddingBottom: scale.pagePadding,
-                items: buildHeaderRow(payload.title || SKILL_TITLE, payload.subtitle, scale)
-                    .concat([body, buildFooter(payload.footer, scale)])
-            }]
-        }
-    };
+    return buildPageShell(
+        buildHeaderRow(payload.title || SKILL_TITLE, payload.subtitle, scale)
+            .concat([body, buildFooter(payload.footer, scale)]),
+        scale
+    );
 }
 
 function buildDocument(payload, viewport) {
