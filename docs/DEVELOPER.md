@@ -86,6 +86,19 @@ See `docs/manual-json-week-menu.example.json` or the user guide.
 cd lambda
 npm install
 npm test
+npm run test:apl
+npm run preview:apl   # writes build/apl-*.json for APL authoring tool preview
+```
+
+### Echo Show APL UI
+
+Card-based layouts live in `lambda/apl.js` with viewport scaling (`round`, `small`, `medium`, `large`). Documents are built server-side at response time from `event.context.Viewport`.
+
+**Post-certification viewport flip:** Until the six-viewport manifest is live, `LIVE_MANIFEST_ALIGNED` is `false` and Show 8/10 (1280px) skip APL to avoid blank screens. After certification publishes:
+
+```bash
+./scripts/flip-viewports-after-cert.sh
+# then push prod on the hosted skill repo
 ```
 
 ---

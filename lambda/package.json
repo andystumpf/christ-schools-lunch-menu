@@ -4,7 +4,9 @@
   "description": "Alexa skill for Christ Schools elementary lunch menu",
   "main": "index.js",
   "scripts": {
-    "test": "node test-menu.js"
+    "test": "node test-menu.js && node test-apl-response.js",
+    "test:apl": "node test-apl-response.js",
+    "preview:apl": "node ../scripts/preview-apl.js"
   },
   "author": "Andy Stumpf",
   "license": "MIT",
