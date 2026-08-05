@@ -86,7 +86,9 @@
       "isChildDirected": false,
       "isExportCompliant": true,
       "locales": {
-        "en-US": {}
+        "en-US": {
+          "privacyPolicyUrl": "https://github.com/andystumpf/christ-schools-lunch-menu/blob/main/docs/USER_GUIDE.md#privacy"
+        }
       },
       "usesPersonalInfo": false
     },
