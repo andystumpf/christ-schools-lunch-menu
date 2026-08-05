@@ -198,7 +198,10 @@ function buildSkillResponse(speech, reprompt, cardTitle, cardContent, directive,
     };
 }
 
-var APL_ENABLED = true;
+// APL RenderDocument still blanks physical Echo Hub/Show screens even with a
+// flat document and a live APL manifest. Keep disabled so devices show the
+// Simple card (formatted menu text) instead of a black screen.
+var APL_ENABLED = false;
 
 function viewportMatchesRanges(viewport, ranges) {
     if (!viewport || typeof viewport.pixelWidth !== 'number' || typeof viewport.pixelHeight !== 'number') {
