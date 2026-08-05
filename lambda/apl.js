@@ -1,8 +1,12 @@
 'use strict';
 
 // Minimal APL only: no imports, no datasources, no ScrollView.
-// White background so a failed render (black) is distinguishable from success.
+// Echo Hub overlay mode dims light backgrounds; use dark navy + bright text.
 var APL_VERSION = '1.0';
+var PAGE_BG = '#1B3A5C';
+var ACCENT = '#F0C674';
+var TEXT_PRIMARY = '#FFFFFF';
+var TEXT_MUTED = '#D0D8E0';
 var SKILL_TITLE = 'Christ Schools Menu';
 
 // Must match skill-package/skill.json supportedViewports.
@@ -99,36 +103,53 @@ function buildWelcomePayload() {
 }
 
 function buildDisplayDocument(payload) {
-    var text = [
-        payload.title,
-        payload.subtitle,
-        '',
-        payload.bodyText,
-        '',
-        payload.footer
-    ].join('\n');
-
     return {
         type: 'APL',
         version: APL_VERSION,
+        theme: 'dark',
         mainTemplate: {
             items: [
                 {
                     type: 'Container',
-                    width: '100%',
-                    height: '100%',
+                    width: '100vw',
+                    height: '100vh',
+                    backgroundColor: PAGE_BG,
                     paddingLeft: 40,
                     paddingRight: 40,
-                    paddingTop: 40,
-                    paddingBottom: 40,
-                    backgroundColor: '#FFFFFF',
+                    paddingTop: 36,
+                    paddingBottom: 36,
                     items: [
                         {
                             type: 'Text',
-                            text: text,
+                            text: payload.title,
                             width: '100%',
-                            color: '#111111',
-                            fontSize: 32
+                            color: TEXT_PRIMARY,
+                            fontSize: 40,
+                            fontWeight: 'bold'
+                        },
+                        {
+                            type: 'Text',
+                            text: payload.subtitle,
+                            width: '100%',
+                            color: ACCENT,
+                            fontSize: 30,
+                            paddingTop: 12
+                        },
+                        {
+                            type: 'Text',
+                            text: payload.bodyText,
+                            width: '100%',
+                            color: TEXT_PRIMARY,
+                            fontSize: 28,
+                            paddingTop: 24
+                        },
+                        {
+                            type: 'Text',
+                            text: payload.footer,
+                            width: '100%',
+                            color: TEXT_MUTED,
+                            fontSize: 22,
+                            paddingTop: 24
                         }
                     ]
                 }

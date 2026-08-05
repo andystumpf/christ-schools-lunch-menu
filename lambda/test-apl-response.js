@@ -29,8 +29,8 @@ if (json.indexOf('${') !== -1) {
 if (json.indexOf('ScrollView') !== -1) {
     throw new Error('Document must not use ScrollView');
 }
-if (json.indexOf('#FFFFFF') === -1) {
-    throw new Error('Expected white background for render diagnostics');
+if (json.indexOf('#1B3A5C') === -1) {
+    throw new Error('Expected navy page background for Hub contrast');
 }
 if (directive.datasources) {
     throw new Error('Document must not use datasources');
