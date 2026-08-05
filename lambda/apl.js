@@ -24,7 +24,7 @@ var MANIFEST_VIEWPORTS = [
 ];
 
 // Live manifest until six-viewport cert publishes; set true after publish (flip-viewports todo).
-var LIVE_MANIFEST_ALIGNED = false;
+var LIVE_MANIFEST_ALIGNED = true;
 
 var LIVE_MANIFEST_VIEWPORTS = [
     { mode: 'TV', shape: 'RECTANGLE', minWidth: 960, maxWidth: 960, minHeight: 540, maxHeight: 540 },
