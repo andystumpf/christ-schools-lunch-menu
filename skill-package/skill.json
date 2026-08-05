@@ -43,6 +43,22 @@
                 "maxWidth": 1920
               },
               {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minHeight": 960,
+                "maxHeight": 1279,
+                "minWidth": 1920,
+                "maxWidth": 2560
+              },
+              {
+                "mode": "HUB",
+                "shape": "RECTANGLE",
+                "minHeight": 1920,
+                "maxHeight": 2560,
+                "minWidth": 960,
+                "maxWidth": 1279
+              },
+              {
                 "mode": "TV",
                 "shape": "RECTANGLE",
                 "minHeight": 540,

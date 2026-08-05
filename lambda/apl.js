@@ -1,11 +1,9 @@
 'use strict';
 
-// Flat text layout only — ScrollView/nested flex layouts fail silently on Echo Hub/Show.
-var APL_VERSION = '1.8';
-
-var PAGE_BG = '#1B3A5C';
-var ACCENT = '#F0C674';
-var TEXT_MUTED = '#B0BEC5';
+// Use Amazon's responsive AlexaHeadline layout. Custom Container/ScrollView
+// documents have blanked physical Echo Hub/Show devices even when voice works.
+var APL_VERSION = '2023.3';
+var ALEXA_LAYOUTS_VERSION = '1.7.0';
 var SKILL_TITLE = 'Christ Schools Menu';
 
 // Must match skill-package/skill.json supportedViewports.
@@ -14,18 +12,13 @@ var MANIFEST_VIEWPORTS = [
     { mode: 'HUB', shape: 'RECTANGLE', minWidth: 960, maxWidth: 1279, minHeight: 100, maxHeight: 599 },
     { mode: 'HUB', shape: 'RECTANGLE', minWidth: 960, maxWidth: 1279, minHeight: 600, maxHeight: 959 },
     { mode: 'HUB', shape: 'RECTANGLE', minWidth: 1280, maxWidth: 1920, minHeight: 600, maxHeight: 1279 },
+    { mode: 'HUB', shape: 'RECTANGLE', minWidth: 1920, maxWidth: 2560, minHeight: 960, maxHeight: 1279 },
+    { mode: 'HUB', shape: 'RECTANGLE', minWidth: 960, maxWidth: 1279, minHeight: 1920, maxHeight: 2560 },
     { mode: 'TV', shape: 'RECTANGLE', minWidth: 960, maxWidth: 960, minHeight: 540, maxHeight: 540 },
     { mode: 'MOBILE', shape: 'RECTANGLE', minWidth: 960, maxWidth: 1279, minHeight: 320, maxHeight: 1920 }
 ];
 
 var LIVE_MANIFEST_ALIGNED = true;
-
-var LIVE_MANIFEST_VIEWPORTS = [
-    { mode: 'TV', shape: 'RECTANGLE', minWidth: 960, maxWidth: 960, minHeight: 540, maxHeight: 540 },
-    { mode: 'HUB', shape: 'RECTANGLE', minWidth: 960, maxWidth: 1279, minHeight: 600, maxHeight: 1279 },
-    { mode: 'HUB', shape: 'ROUND', minWidth: 600, maxWidth: 959, minHeight: 600, maxHeight: 959 },
-    { mode: 'MOBILE', shape: 'RECTANGLE', minWidth: 100, maxWidth: 959, minHeight: 100, maxHeight: 599 }
-];
 
 function parseMenuOptions(text) {
     if (!text) {
@@ -44,19 +37,26 @@ function formatCardMenu(text) {
     var options = parseMenuOptions(text);
     if (options.length > 1) {
         return options.map(function (option) {
-            return '• ' + option;
+            return '- ' + option;
         }).join('\n');
     }
 
     return text || '';
 }
 
+function sanitizeDisplayText(text) {
+    return String(text || '')
+        .replace(/\u00B7/g, '-')
+        .replace(/[•●]/g, '-')
+        .replace(/\r\n/g, '\n');
+}
+
 function buildDisplayPayload(subtitle, bodyText, footer) {
     return {
         title: SKILL_TITLE,
-        subtitle: subtitle || 'Lunch menu',
-        bodyText: bodyText || 'Ask what is for lunch today or next week.',
-        footer: footer || 'Say stop to exit.'
+        subtitle: sanitizeDisplayText(subtitle || 'Lunch menu'),
+        bodyText: sanitizeDisplayText(bodyText || 'Ask what is for lunch today or next week.'),
+        footer: sanitizeDisplayText(footer || 'Say stop to exit.')
     };
 }
 
@@ -66,12 +66,12 @@ function buildSingleDayPayload(dateLabel, menuText, kind, message) {
     return buildDisplayPayload(
         dateLabel,
         bodyText,
-        'Say "help" for examples or "stop" when you are done.'
+        'Say help for examples or stop when you are done.'
     );
 }
 
 function formatWeekDayBlock(day) {
-    var header = day.dayName.toUpperCase() + ' · ' + day.dateLabel;
+    var header = day.dayName.toUpperCase() + ' - ' + day.dateLabel;
     if (!day.hasMenu) {
         return header + '\nNo lunch planned';
     }
@@ -87,68 +87,40 @@ function buildWeekPayload(weekLabel, days) {
     return buildDisplayPayload(
         weekLabel,
         buildWeekBodyText(days),
-        'Ask about another day or say "stop" to exit.'
+        'Ask about another day or say stop to exit.'
     );
 }
 
 function buildWelcomePayload() {
     return buildDisplayPayload(
         'Elementary lunch menu',
-        'Try asking:\n\n• What is for lunch today?\n• What is for lunch next week?\n• What is for lunch on Friday?',
+        'Try asking:\n\n- What is for lunch today?\n- What is for lunch next week?\n- What is for lunch on Friday?',
         'What would you like?'
     );
 }
 
-function buildDisplayDocument(payload) {
+function buildDisplayDocument() {
     return {
         type: 'APL',
         version: APL_VERSION,
+        import: [
+            {
+                name: 'alexa-layouts',
+                version: ALEXA_LAYOUTS_VERSION
+            }
+        ],
         mainTemplate: {
-            parameters: [],
-            items: [{
-                type: 'Container',
-                width: '100vw',
-                height: '100vh',
-                backgroundColor: PAGE_BG,
-                paddingLeft: 40,
-                paddingRight: 40,
-                paddingTop: 32,
-                paddingBottom: 32,
-                items: [
-                    {
-                        type: 'Text',
-                        text: payload.title,
-                        width: '100%',
-                        fontSize: 36,
-                        fontWeight: 'bold',
-                        color: 'white'
-                    },
-                    {
-                        type: 'Text',
-                        text: payload.subtitle,
-                        width: '100%',
-                        fontSize: 28,
-                        color: ACCENT,
-                        paddingTop: 12
-                    },
-                    {
-                        type: 'Text',
-                        text: payload.bodyText,
-                        width: '100%',
-                        fontSize: 30,
-                        color: 'white',
-                        paddingTop: 24
-                    },
-                    {
-                        type: 'Text',
-                        text: payload.footer,
-                        width: '100%',
-                        fontSize: 20,
-                        color: TEXT_MUTED,
-                        paddingTop: 24
-                    }
-                ]
-            }]
+            parameters: ['payload'],
+            items: [
+                {
+                    type: 'AlexaHeadline',
+                    headerTitle: '${payload.menu.title}',
+                    primaryText: '${payload.menu.subtitle}',
+                    secondaryText: '${payload.menu.bodyText}',
+                    footerHintText: '${payload.menu.footer}',
+                    backgroundColor: 'darkblue'
+                }
+            ]
         }
     };
 }
@@ -157,7 +129,15 @@ function buildRenderDirective(payload, token) {
     return {
         type: 'Alexa.Presentation.APL.RenderDocument',
         token: token || 'christSchoolsMenu',
-        document: buildDisplayDocument(payload)
+        document: buildDisplayDocument(),
+        datasources: {
+            menu: {
+                title: payload.title,
+                subtitle: payload.subtitle,
+                bodyText: payload.bodyText,
+                footer: payload.footer
+            }
+        }
     };
 }
 
@@ -198,10 +178,7 @@ function buildSkillResponse(speech, reprompt, cardTitle, cardContent, directive,
     };
 }
 
-// APL RenderDocument still blanks physical Echo Hub/Show screens even with a
-// flat document and a live APL manifest. Keep disabled so devices show the
-// Simple card (formatted menu text) instead of a black screen.
-var APL_ENABLED = false;
+var APL_ENABLED = true;
 
 function viewportMatchesRanges(viewport, ranges) {
     if (!viewport || typeof viewport.pixelWidth !== 'number' || typeof viewport.pixelHeight !== 'number') {
@@ -223,16 +200,12 @@ function viewportMatchesRanges(viewport, ranges) {
     });
 }
 
-function activeManifestViewports() {
-    return LIVE_MANIFEST_ALIGNED ? MANIFEST_VIEWPORTS : LIVE_MANIFEST_VIEWPORTS;
-}
-
 function viewportMatchesManifest(viewport) {
     return viewportMatchesRanges(viewport, MANIFEST_VIEWPORTS);
 }
 
 function viewportMatchesLiveManifest(viewport) {
-    return viewportMatchesRanges(viewport, activeManifestViewports());
+    return viewportMatchesManifest(viewport);
 }
 
 function supportsApl(event) {
@@ -244,21 +217,23 @@ function supportsApl(event) {
         event.context.System.device &&
         event.context.System.device.supportedInterfaces;
 
-    var hasAplInterface = !!(interfaces && interfaces['Alexa.Presentation.APL']);
-    var hasDevTestViewport = !!event.context.Viewport;
-
-    if (!hasAplInterface && !hasDevTestViewport) {
-        return false;
+    // With APL enabled in the skill manifest, skipping RenderDocument leaves
+    // Echo Hub/Show on a black screen. Always send APL when the device supports it.
+    if (interfaces && interfaces['Alexa.Presentation.APL']) {
+        if (event.context.Viewport) {
+            console.log('APL viewport', JSON.stringify({
+                mode: event.context.Viewport.mode,
+                shape: event.context.Viewport.shape,
+                pixelWidth: event.context.Viewport.pixelWidth,
+                pixelHeight: event.context.Viewport.pixelHeight,
+                dpi: event.context.Viewport.dpi
+            }));
+        }
+        return true;
     }
 
-    if (hasAplInterface &&
-        event.context.Viewport &&
-        typeof event.context.Viewport.pixelWidth === 'number' &&
-        !viewportMatchesLiveManifest(event.context.Viewport)) {
-        return false;
-    }
-
-    return true;
+    // Developer console simulator may send Viewport without the interface flag.
+    return !!event.context.Viewport;
 }
 
 function emitResponse(context, options) {
@@ -281,7 +256,6 @@ module.exports = {
     APL_VERSION: APL_VERSION,
     LIVE_MANIFEST_ALIGNED: LIVE_MANIFEST_ALIGNED,
     MANIFEST_VIEWPORTS: MANIFEST_VIEWPORTS,
-    LIVE_MANIFEST_VIEWPORTS: LIVE_MANIFEST_VIEWPORTS,
     supportsApl: supportsApl,
     viewportMatchesManifest: viewportMatchesManifest,
     viewportMatchesLiveManifest: viewportMatchesLiveManifest,

@@ -47,7 +47,7 @@ var variants = [
 ];
 
 variants.forEach(function (variant) {
-    var document = apl.buildDisplayDocument(variant.payload);
+    var document = apl.buildRenderDirective(variant.payload).document;
     var filePath = path.join(outDir, 'apl-' + variant.name + '.json');
     fs.writeFileSync(filePath, JSON.stringify(document, null, 2));
     console.log('Wrote', filePath);
