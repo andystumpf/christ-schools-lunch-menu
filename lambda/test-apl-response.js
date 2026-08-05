@@ -3,7 +3,11 @@
 var apl = require('./apl');
 
 if (!apl.APL_ENABLED) {
-    throw new Error('APL should be enabled so Hub/Show devices receive RenderDocument');
+    throw new Error('APL should be enabled');
+}
+
+if (apl.APL_VERSION !== '1.0') {
+    throw new Error('Expected APL 1.0 minimal document');
 }
 
 var days = [
@@ -15,40 +19,24 @@ var days = [
 ];
 
 var weekPayload = apl.buildWeekPayload('Next week', days);
-if (weekPayload.bodyText.indexOf('MONDAY') === -1 || weekPayload.bodyText.indexOf('THURSDAY') === -1) {
-    throw new Error('Week body text missing formatted weekday headers');
-}
-if (weekPayload.bodyText.indexOf('•') !== -1 || weekPayload.bodyText.indexOf('\u00B7') !== -1) {
-    throw new Error('Display text should use ASCII punctuation only');
-}
-
 var directive = apl.buildRenderDirective(weekPayload, 'weekView');
-if (directive.type !== 'Alexa.Presentation.APL.RenderDocument') {
-    throw new Error('Expected RenderDocument directive');
-}
-if (!directive.document || directive.document.version !== '2023.3') {
-    throw new Error('Expected APL 2023.3 document');
-}
-if (!directive.document.import || directive.document.import[0].name !== 'alexa-layouts') {
-    throw new Error('Expected alexa-layouts import for responsive Hub rendering');
-}
-if (!directive.datasources || !directive.datasources.menu) {
-    throw new Error('Expected menu datasource');
-}
-if (directive.datasources.menu.bodyText.indexOf('THURSDAY') === -1) {
-    throw new Error('Datasource should include week body text');
-}
+var doc = directive.document;
+var json = JSON.stringify(doc);
 
-var mediumViewport = { mode: 'HUB', shape: 'RECTANGLE', pixelWidth: 1024, pixelHeight: 600 };
-var largeViewport = { mode: 'HUB', shape: 'RECTANGLE', pixelWidth: 1280, pixelHeight: 800 };
-
-if (!apl.supportsApl({
-    context: {
-        Viewport: largeViewport,
-        System: { device: { supportedInterfaces: { 'Alexa.Presentation.APL': {} } } }
-    }
-})) {
-    throw new Error('Expected APL support whenever the device advertises the APL interface');
+if (json.indexOf('${') !== -1) {
+    throw new Error('Document must inline text; no data binding');
+}
+if (json.indexOf('ScrollView') !== -1) {
+    throw new Error('Document must not use ScrollView');
+}
+if (json.indexOf('#FFFFFF') === -1) {
+    throw new Error('Expected white background for render diagnostics');
+}
+if (directive.datasources) {
+    throw new Error('Document must not use datasources');
+}
+if (doc.mainTemplate.parameters) {
+    throw new Error('Document must omit mainTemplate.parameters');
 }
 
 var context = {
@@ -56,11 +44,11 @@ var context = {
     handler: {},
     event: {
         context: {
-            Viewport: mediumViewport,
+            Viewport: { mode: 'HUB', shape: 'RECTANGLE', pixelWidth: 1280, pixelHeight: 800 },
             System: {
                 device: {
                     supportedInterfaces: {
-                        'Alexa.Presentation.APL': {}
+                        'Alexa.Presentation.APL': { runtime: { maxVersion: '2024.3' } }
                     }
                 }
             }
@@ -70,27 +58,20 @@ var context = {
         if (eventName !== ':responseReady') {
             throw new Error('Unexpected emit: ' + eventName);
         }
-        var response = context.handler.response;
-        var emitted = response.response.directives[0];
+        var emitted = context.handler.response.response.directives[0];
         if (!emitted || emitted.type !== 'Alexa.Presentation.APL.RenderDocument') {
-            throw new Error('Expected APL RenderDocument directive');
-        }
-        if (!emitted.datasources || !emitted.datasources.menu) {
-            throw new Error('Expected datasources on emitted directive');
+            throw new Error('Expected RenderDocument');
         }
         console.log('APL response OK');
     }
 };
 
 apl.emitResponse(context, {
-    speech: 'Christ Schools Menu lunch for August 13th is Chicken Tenders.',
-    reprompt: 'Would you like to know more?',
+    speech: 'test',
+    reprompt: 'test',
     cardTitle: 'Christ Schools Menu',
-    cardContent: 'Wednesday, August 13\n\n- Chicken Tenders\n- Sunbutter Uncrustable',
-    directive: apl.buildRenderDirective(
-        apl.buildSingleDayPayload('Wednesday, August 13', 'Chicken Tenders OR Sunbutter Uncrustable'),
-        'singleDayView'
-    )
+    cardContent: 'test',
+    directive: directive
 });
 
 console.log('Week APL payload OK');

@@ -1,9 +1,8 @@
 'use strict';
 
-// Use Amazon's responsive AlexaHeadline layout. Custom Container/ScrollView
-// documents have blanked physical Echo Hub/Show devices even when voice works.
-var APL_VERSION = '2023.3';
-var ALEXA_LAYOUTS_VERSION = '1.7.0';
+// Minimal APL only: no imports, no datasources, no ScrollView.
+// White background so a failed render (black) is distinguishable from success.
+var APL_VERSION = '1.0';
 var SKILL_TITLE = 'Christ Schools Menu';
 
 // Must match skill-package/skill.json supportedViewports.
@@ -99,26 +98,39 @@ function buildWelcomePayload() {
     );
 }
 
-function buildDisplayDocument() {
+function buildDisplayDocument(payload) {
+    var text = [
+        payload.title,
+        payload.subtitle,
+        '',
+        payload.bodyText,
+        '',
+        payload.footer
+    ].join('\n');
+
     return {
         type: 'APL',
         version: APL_VERSION,
-        import: [
-            {
-                name: 'alexa-layouts',
-                version: ALEXA_LAYOUTS_VERSION
-            }
-        ],
         mainTemplate: {
-            parameters: ['payload'],
             items: [
                 {
-                    type: 'AlexaHeadline',
-                    headerTitle: '${payload.menu.title}',
-                    primaryText: '${payload.menu.subtitle}',
-                    secondaryText: '${payload.menu.bodyText}',
-                    footerHintText: '${payload.menu.footer}',
-                    backgroundColor: 'darkblue'
+                    type: 'Container',
+                    width: '100%',
+                    height: '100%',
+                    paddingLeft: 40,
+                    paddingRight: 40,
+                    paddingTop: 40,
+                    paddingBottom: 40,
+                    backgroundColor: '#FFFFFF',
+                    items: [
+                        {
+                            type: 'Text',
+                            text: text,
+                            width: '100%',
+                            color: '#111111',
+                            fontSize: 32
+                        }
+                    ]
                 }
             ]
         }
@@ -129,15 +141,7 @@ function buildRenderDirective(payload, token) {
     return {
         type: 'Alexa.Presentation.APL.RenderDocument',
         token: token || 'christSchoolsMenu',
-        document: buildDisplayDocument(),
-        datasources: {
-            menu: {
-                title: payload.title,
-                subtitle: payload.subtitle,
-                bodyText: payload.bodyText,
-                footer: payload.footer
-            }
-        }
+        document: buildDisplayDocument(payload)
     };
 }
 
@@ -217,22 +221,10 @@ function supportsApl(event) {
         event.context.System.device &&
         event.context.System.device.supportedInterfaces;
 
-    // With APL enabled in the skill manifest, skipping RenderDocument leaves
-    // Echo Hub/Show on a black screen. Always send APL when the device supports it.
     if (interfaces && interfaces['Alexa.Presentation.APL']) {
-        if (event.context.Viewport) {
-            console.log('APL viewport', JSON.stringify({
-                mode: event.context.Viewport.mode,
-                shape: event.context.Viewport.shape,
-                pixelWidth: event.context.Viewport.pixelWidth,
-                pixelHeight: event.context.Viewport.pixelHeight,
-                dpi: event.context.Viewport.dpi
-            }));
-        }
         return true;
     }
 
-    // Developer console simulator may send Viewport without the interface flag.
     return !!event.context.Viewport;
 }
 
