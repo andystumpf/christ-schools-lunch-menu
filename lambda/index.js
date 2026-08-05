@@ -16,8 +16,7 @@ var APP_ID = undefined;
 var CALENDAR_URL = 'https://calendar.google.com/calendar/ical/christschools.org_f2uc72cd4bn3mgglvl1j49a7sk%40group.calendar.google.com/public/basic.ics';
 var CALENDAR_TIMEZONE = 'America/Chicago';
 var skillName = 'christ schools menu';
-var welcomeMessage = "Screen update test. Welcome to Christ Schools Menu. Ask what's for lunch today, tomorrow, on a date like August seventeenth, next Tuesday, this coming Wednesday, or say show me the menu for this week or next week. What would you like? ";
-// Deploy fingerprint for verifying live Lambda pickup: 2026-08-05T16:40Z-white-apl
+var welcomeMessage = "Welcome to Christ Schools Menu. Ask what's for lunch today, tomorrow, on a date like August seventeenth, next Tuesday, this coming Wednesday, or say show me the menu for this week or next week. What would you like? ";
 var HelpMessage = "Here are things you can say. What's for lunch today? What's for lunch tomorrow? What's for lunch on August seventeenth? What's for lunch on Friday? What's for lunch next Tuesday? What's for lunch this coming Wednesday? Show me the menu for this week. Show me the menu for next week. Say stop when you're done.";
 var CalendarErrorMessage = 'Sorry, I had trouble loading the lunch calendar. Please try again in a moment.';
 var shutdownMessage = 'Ok see you again soon.';
