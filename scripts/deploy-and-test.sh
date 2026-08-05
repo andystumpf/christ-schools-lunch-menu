@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SKILL_ID="amzn1.ask.skill.8d9936d5-800e-48fd-9a2c-6c5e318348cb"
+SKILL_ID="amzn1.ask.skill.dc4a98f9-ff3f-4f16-bef6-a421364c411f"
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 cd "$REPO_ROOT"
@@ -18,22 +18,22 @@ if ! git remote get-url origin 2>/dev/null | grep -q 'codecommit'; then
   ask init --hosted-skill-id "$SKILL_ID"
 fi
 
-echo "Deploying lambda code to Alexa development stage..."
+echo "Deploying to Alexa hosted skill (master -> development)..."
 if git show-ref --verify --quiet refs/heads/master; then
   git checkout master
 else
   git checkout -b master
 fi
 
-git add lambda/index.js lambda/package.json
-git commit -m "Fix calendar fetch for Christ Lincoln Schools lunch menu" || true
+git add lambda/ skill-package/
+git commit -m "Deploy Christ Schools Menu updates" || true
 git push origin master
 
-echo "Simulating: ask c l s menu what's for lunch today"
+echo "Simulating: ask christ schools menu what's for lunch today"
 ask smapi simulate-skill \
   --skill-id "$SKILL_ID" \
   --stage development \
-  --input-content "ask c l s menu what's for lunch today" \
+  --input-content "ask christ schools menu what's for lunch today" \
   --device-locale en-US
 
 echo "Done. Check the simulation result above."
